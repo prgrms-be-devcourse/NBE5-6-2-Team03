@@ -4,26 +4,92 @@
     <meta charset="UTF-8">
     <title>여행 일정 목록</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        * { box-sizing: border-box; }
         body {
-            background: #f7f9fc;
-            padding: 40px;
+            background-color: #f4f6f8;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .site-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #4a6fa5;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-links span {
+            font-weight: bold;
+            color: #4a6fa5;
+            font-size: 1rem;
+        }
+        .nav-links a {
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            background-color: #4a6fa5;
+            color: white;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        .nav-links a:hover {
+            background-color: #3a5f8a;
+        }
+        .nav-links form {
+            display: inline;
+        }
+        .nav-links button {
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .nav-links button:hover {
+            background-color: #3a5f8a;
+        }
+        h2 {
+            margin: 40px 30px 20px;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin: 0 30px 24px;
         }
         .add-btn {
-            display: block;
-            margin: 0 0 24px auto;
-            padding: 8px 16px;
+            padding: 10px 20px;
             background: #4a6fa5;
             color: white;
             text-decoration: none;
             border-radius: 4px;
             text-align: center;
-            width: max-content;
+            font-size: 0.95rem;
+            min-height: 38px;
+            line-height: 1.4;
         }
         .schedule-container {
             display: flex;
             flex-direction: column;
             gap: 16px;
+            margin: 0 30px;
         }
         .schedule-card {
             background: white;
@@ -80,15 +146,38 @@
         .btn-edit { color: #007bff; border-color: #007bff; }
         .btn-delete { color: #dc3545; border-color: #dc3545; }
         .btn-status { color: #6610f2; border-color: #6610f2; }
+        footer {
+            background-color: #ffffff;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: auto;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 <body>
 
+<header>
+    <div class="site-title">여행 계획 일정</div>
+    <div class="nav-links">
+        <span th:text="|${username}님|">테스터님</span>
+        <a href="/users/my-page">내 정보</a>
+        <form action="/users/logout" method="post">
+            <button type="submit">로그아웃</button>
+        </form>
+    </div>
+</header>
+
 <h2>여행 일정 목록</h2>
 
-<a th:href="@{'/plan/' + ${travelPlanId} + '/schedule/add'}" class="add-btn">+ 일정 추가</a>
+<div class="btn-container">
+    <a th:href="@{'/plan/' + ${travelPlanId} + '/schedule/add'}" class="add-btn">일정 추가</a>
+    <a th:href="@{'/plan/' + ${travelPlanId} + '/schedule/expense'}" class="add-btn">정산하기</a>
+</div>
 
-<ul class="nav nav-tabs mb-3" id="scheduleTab" role="tablist">
+<ul class="nav nav-tabs mb-3" id="scheduleTab" role="tablist" style="margin: 0 30px;">
     <li class="nav-item" th:each="entry, iterStat : ${groupedSchedules}">
         <button class="nav-link" th:classappend="${iterStat.index == 0} ? 'active'"
                 th:id="'tab-' + ${iterStat.index}"
@@ -100,7 +189,7 @@
     </li>
 </ul>
 
-<div class="tab-content" id="scheduleTabContent">
+<div class="tab-content" id="scheduleTabContent" style="margin: 0 30px;">
     <div class="tab-pane fade show"
          th:each="entry, iterStat : ${groupedSchedules}"
          th:classappend="${iterStat.index == 0} ? 'active'"
@@ -115,8 +204,8 @@
                 <div class="schedule-card" th:each="schedule : ${statusEntry.value}">
 
                     <div class="expense-btn-wrapper">
-                        <a th:href="@{'/plan/' + ${travelPlanId} + '/schedule/' + ${schedule.travelScheduleId} + '/expense/add'}"
-                           class="btn-expense">+ 지출</a>
+                        <a th:href="@{'/plan/' + ${travelPlanId} + '/schedule/' + ${schedule.travelScheduleId} + '/expense'}"
+                           class="btn-expense">지출</a>
                     </div>
 
                     <h4 th:text="${schedule.content}">제목</h4>
@@ -158,6 +247,10 @@
         </div>
     </div>
 </div>
+
+<footer>
+    &copy; 2025 여행 일정 관리 서비스
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

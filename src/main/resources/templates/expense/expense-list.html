@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>지출 정보</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #f4f6f8;
+            font-family: "Arial", sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .site-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #4a6fa5;
+        }
+
+        .site-title a {
+            text-decoration: none;
+            color: #4a6fa5;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-links span {
+            font-weight: bold;
+            color: #4a6fa5;
+            font-size: 1rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            background-color: #4a6fa5;
+            color: white;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: #3a5f8a;
+        }
+
+        .nav-links form {
+            display: inline;
+        }
+
+        .nav-links button {
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .nav-links button:hover {
+            background-color: #3a5f8a;
+        }
+
+        .expense-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 40px 20px;
+        }
+
+        .expense-card {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .expense-title {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .expense-field {
+            margin-bottom: 12px;
+        }
+
+        .expense-label {
+            font-weight: 600;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            margin-top: 24px;
+        }
+
+        .btn-group a,
+        .btn-group button {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            border: 1px solid;
+            background: transparent;
+            text-align: center;
+            cursor: pointer;
+            white-space: nowrap;
+            width: auto;
+            text-decoration: none;
+        }
+
+        .btn-edit {
+            color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-delete {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #4a6fa5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3e5f91;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .btn-list-wrapper {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -8px;
+        }
+
+        footer {
+            background-color: #ffffff;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9rem;
+            color: #777;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="site-title">
+        <a href="/users/home">여행 계획 일정</a>
+    </div>
+    <div class="nav-links">
+        <span th:text="|${username}님|">테스터님</span>
+        <a href="/users/my-page">내 정보</a>
+        <form action="/users/logout" method="post">
+            <button type="submit">로그아웃</button>
+        </form>
+    </div>
+</header>
+
+<div class="expense-container">
+
+    <div th:if="${expense != null}" class="expense-card">
+        <div class="expense-title">지출 상세</div>
+
+        <div class="expense-field">
+            <span class="expense-label">예상 지출:</span>
+            <span th:text="${expense.expectPrice} + ' ' + ${expense.currency}">0</span>
+        </div>
+
+        <div class="expense-field">
+            <span class="expense-label">실제 지출:</span>
+            <span th:text="${expense.payedPrice != null ? expense.payedPrice + ' ' + expense.currency : '미입력'}">-</span>
+        </div>
+
+        <div class="expense-field">
+            <span class="expense-label">지출 날짜:</span>
+            <span th:text="${expense.expenseDate}">2025-01-01</span>
+        </div>
+
+        <div class="btn-group">
+            <a th:href="@{'/plan/' + ${travelPlanId} + '/schedule/' + ${travelScheduleId} + '/expense/' + ${expense.expenseId} + '/edit'}"
+               class="btn-edit">수정</a>
+            <form th:action="@{'/plan/' + ${travelPlanId} + '/schedule/' + ${travelScheduleId} + '/expense/' + ${expense.expenseId} + '/delete'}"
+                  method="post" style="display:inline;">
+                <button type="submit" class="btn-delete">삭제</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${expense == null}" class="expense-card text-center">
+        <div class="expense-title">지출 내역 없음</div>
+        <p>지출 정보를 추가해 주세요.</p>
+        <a th:href="@{'/plan/' + ${travelPlanId} + '/schedule/' + ${travelScheduleId} + '/expense/add'}"
+           class="btn btn-primary">+ 지출 등록</a>
+    </div>
+
+    <div class="btn-list-wrapper">
+        <a th:href="@{'/plan/' + ${travelPlanId} + '/schedule'}" class="btn btn-primary">일정목록</a>
+    </div>
+
+</div>
+
+<footer>
+    &copy; 2025 여행 일정 관리 서비스
+</footer>
+
+</body>
+</html>

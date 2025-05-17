@@ -2,16 +2,16 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>일정 등록/수정</title>
+    <title>지출 등록/수정</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * { box-sizing: border-box; }
 
         body {
-            background-color: #f4f6f8;
-            font-family: 'Arial', sans-serif;
             margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f8;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -29,6 +29,11 @@
         .site-title {
             font-size: 1.4rem;
             font-weight: bold;
+            color: #4a6fa5;
+        }
+
+        .site-title a {
+            text-decoration: none;
             color: #4a6fa5;
         }
 
@@ -51,15 +56,10 @@
             background-color: #4a6fa5;
             color: white;
             font-size: 0.9rem;
-            transition: background-color 0.3s;
         }
 
         .nav-links a:hover {
             background-color: #3a5f8a;
-        }
-
-        .nav-links form {
-            display: inline;
         }
 
         .nav-links button {
@@ -76,17 +76,15 @@
             background-color: #3a5f8a;
         }
 
-        .main {
-            flex-grow: 1;
+        main {
+            padding: 40px 20px 0;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            padding: 40px 20px;
         }
 
         .form-wrapper {
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
             background: white;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -101,16 +99,14 @@
 
         label {
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             display: block;
         }
 
-        input[type="text"],
-        input[type="date"],
-        select {
+        input[type="number"] {
             width: 100%;
             padding: 10px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 1rem;
@@ -120,14 +116,16 @@
             display: flex;
             justify-content: flex-end;
             gap: 10px;
+            margin-top: 20px;
         }
 
         .btn {
             padding: 8px 16px;
             border: none;
             border-radius: 4px;
-            cursor: pointer;
             font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
         }
 
         .btn-primary {
@@ -135,10 +133,13 @@
             color: white;
         }
 
+        .btn-primary:hover {
+            background-color: #3e5f91;
+        }
+
         .btn-secondary {
             background-color: #6c757d;
             color: white;
-            text-decoration: none;
         }
 
         footer {
@@ -148,13 +149,16 @@
             font-size: 0.9rem;
             color: #777;
             box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+            margin-top: auto;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="site-title">여행 계획 일정</div>
+    <div class="site-title">
+        <a href="/users/home">여행 계획 일정</a>
+    </div>
     <div class="nav-links">
         <span th:text="|${username}님|">테스터님</span>
         <a href="/users/my-page">내 정보</a>
@@ -164,57 +168,29 @@
     </div>
 </header>
 
-<div class="main">
+<main>
     <div class="form-wrapper">
-        <h2 th:text="${travelScheduleId == null ? '일정 등록' : '일정 수정'}">일정 등록</h2>
+        <h2 th:text="${expenseId == null ? '지출 등록' : '지출 수정'}">지출 등록</h2>
 
         <form th:object="${request}"
-              th:action="@{${travelScheduleId == null ?
-                '/plan/' + travelPlanId + '/schedule/add' :
-                '/plan/' + travelPlanId + '/schedule/' + travelScheduleId + '/edit'}}"
+              th:action="@{${expenseId == null ?
+                '/plan/' + travelPlanId + '/schedule/' + travelScheduleId + '/expense/add' :
+                '/plan/' + travelPlanId + '/schedule/' + travelScheduleId + '/expense/' + expenseId + '/edit'}}"
               method="post">
 
-            <label for="content">내용</label>
-            <select id="content" th:field="*{content}" required>
-                <option value="">-- 선택하세요 --</option>
-                <option value="식당">식당</option>
-                <option value="카페">카페</option>
-                <option value="관광">관광</option>
-                <option value="이동">이동</option>
-            </select>
+            <label for="expectPrice">예상 지출</label>
+            <input type="number" id="expectPrice" th:field="*{expectPrice}" required>
 
-            <label for="placeName">장소</label>
-            <input type="text" id="placeName" th:field="*{placeName}">
-
-            <div id="transportFields" style="display: none;">
-                <label for="departure">출발지</label>
-                <input type="text" id="departure" th:field="*{departure}">
-
-                <label for="destination">도착지</label>
-                <input type="text" id="destination" th:field="*{destination}">
-
-                <label for="transportation">이동수단</label>
-                <select id="transportation" th:field="*{transportation}">
-                    <option value="">-- 선택하세요 --</option>
-                    <option value="비행기">비행기</option>
-                    <option value="기차">기차</option>
-                    <option value="지하철">지하철</option>
-                    <option value="버스">버스</option>
-                    <option value="택시">택시</option>
-                    <option value="도보">도보</option>
-                </select>
-            </div>
-
-            <label for="travelScheduleDate">날짜</label>
-            <input type="date" id="travelScheduleDate" th:field="*{travelScheduleDate}" required>
+            <label for="payedPrice">실제 지출</label>
+            <input type="number" id="payedPrice" th:field="*{payedPrice}">
 
             <div class="button-group">
                 <button type="submit" class="btn btn-primary">저장</button>
-                <a th:href="@{'/plan/' + ${travelPlanId} + '/schedule'}" class="btn btn-secondary">취소</a>
+                <a th:href="@{'/plan/' + ${travelPlanId} + '/schedule/' + ${travelScheduleId} + '/expense'}" class="btn btn-secondary">취소</a>
             </div>
         </form>
     </div>
-</div>
+</main>
 
 <footer>
     &copy; 2025 여행 일정 관리 서비스
@@ -222,18 +198,6 @@
 
 <script th:if="${errorMessage != null}" th:inline="javascript">
     alert([[${errorMessage}]]);
-</script>
-
-<script>
-    const contentSelect = document.getElementById('content');
-    const transportFields = document.getElementById('transportFields');
-
-    function toggleTransportFields() {
-        transportFields.style.display = contentSelect.value === '이동' ? 'block' : 'none';
-    }
-
-    contentSelect.addEventListener('change', toggleTransportFields);
-    window.addEventListener('DOMContentLoaded', toggleTransportFields);
 </script>
 
 </body>
