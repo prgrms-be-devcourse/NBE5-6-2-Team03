@@ -40,7 +40,8 @@ public class SecurityConfig {
                         (auth) -> auth
                                 .requestMatchers("/", "/users/sign-up").permitAll()
                                 .requestMatchers("/css/**", "/assets/**", "/js/**","/api/ai/**","/trip-chat").permitAll()
-                                .requestMatchers("/api/exchange/**").permitAll()
+                                .requestMatchers("/api/**").permitAll()
+                                .requestMatchers("/plan/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 
