@@ -43,6 +43,33 @@ public class CustomLoginFailureHandler implements AuthenticationFailureHandler {
         String email = request.getParameter("email");
         User user = userRepository.findByEmail(email).orElse(null);
 
+        if (isJsonRequest(request)) {
+            String errorMessage;
+            boolean locked = false;
+
+            if (isNotRegisteredUser(user)) {
+                errorMessage = "존재하지 않는 사용자입니다.";
+            } else {
+                String key = findKey(email);
+                Long failCount = redisTemplate.opsForValue().increment(key);
+
+                if (isFirstLoginFail(failCount)) {
+                    redisTemplate.expire(key, LOGIN_FAIL_TTL);
+                }
+
+                if (isOverMaxFailAttempts(failCount)) {
+                    user.updateIsLocked(true);
+                    locked = true;
+                    errorMessage = "⚠ 계정이 잠겼습니다.<br> 비밀번호 찾기를 이용해 주세요";
+                } else {
+                    errorMessage = "비밀번호가 틀렸습니다.";
+                }
+            }
+
+            jsonResponse(response, errorMessage, locked);
+            return;
+        }
+
         if(isNotRegisteredUser(user)){
             response.sendRedirect(DEFAULT_URL);
             return;
@@ -78,5 +105,22 @@ public class CustomLoginFailureHandler implements AuthenticationFailureHandler {
 
     private boolean isFirstLoginFail(Long failCount) {
         return failCount == 1;
+    }
+
+    private boolean isJsonRequest(HttpServletRequest request) {
+        String contentType = request.getHeader("Content-Type");
+        return contentType != null && contentType.contains("application/json");
+    }
+
+    private void jsonResponse(HttpServletResponse response, String message, boolean locked) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+
+        String json = locked
+            ? String.format("{\"login\": false, \"error\": \"%s\", \"locked\": true}", message)
+            : String.format("{\"login\": false, \"error\": \"%s\"}", message);
+
+        response.getWriter().write(json);
+        response.flushBuffer();
     }
 }

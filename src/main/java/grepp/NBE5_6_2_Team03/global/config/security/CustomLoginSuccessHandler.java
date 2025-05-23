@@ -32,6 +32,21 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         String key = "login:fail:" + email;
         redisTemplate.delete(key);
 
+        if (isJsonRequest(request)) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("application/json;charset=UTF-8");
+
+            String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority())
+                .orElse("UNKNOWN");
+
+            String json = String.format("{\"login\": true, \"role\": \"%s\"}", role);
+            response.getWriter().write(json);
+            response.flushBuffer();
+            return;
+        }
+
         if (hasRole(authentication, Role.ROLE_ADMIN)) {
            response.sendRedirect(ADMIN_REDIRECT_URL);
            return;
@@ -43,11 +58,15 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         }
 
         response.sendRedirect(DEFAULT_REDIRECT_URL);
-
     }
 
     private boolean hasRole(Authentication auth, Role role) {
         return auth.getAuthorities().stream()
                 .anyMatch(a -> role.isSameRoleName(a.getAuthority()));
+    }
+
+    private boolean isJsonRequest(HttpServletRequest request) {
+        String contentType = request.getHeader("Content-Type");
+        return contentType != null && contentType.contains("application/json");
     }
 }
