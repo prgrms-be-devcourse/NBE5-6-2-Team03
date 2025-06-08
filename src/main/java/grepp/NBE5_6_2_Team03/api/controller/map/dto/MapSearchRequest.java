@@ -24,7 +24,7 @@ public class MapSearchRequest {
         this.country = country;
         this.city = city;
         this.page = page != null ? Math.max(0, page) : 0;
-        this.size = size != null ? Math.min(Math.max(1, size), 100) : 20;
+        this.size = size != null ? Math.min(Math.max(1, size), 15) : 15;
     }
 
     public Pageable getPageable() {

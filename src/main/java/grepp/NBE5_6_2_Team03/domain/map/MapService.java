@@ -55,26 +55,13 @@ public class MapService {
     }
 
     public Page<MapResponse> findPlaces(String country, String city, Pageable pageable) {
-        Page<Place> places;
-
-        switch (hasFilterOption(country, city)){
-            case COUNTRY -> places = placeRepository.findByCountry(country, pageable);
-            case CITY -> places = placeRepository.findByCity(city, pageable);
-            default -> places = placeRepository.findAll(pageable);
-        }
-
+        Page<Place> places = placeRepository.findPaged(country, city, pageable);
         log.debug("Found {} places", places.getTotalElements());
         return places.map(this::convertToResponse);
     }
 
     public Optional<String> getCountryByCity(String city) {
         return placeRepository.findCountryByCity(city);
-    }
-
-    private FilterOptionType hasFilterOption(String country, String city) {
-        if(city != null && !city.isEmpty()) return FilterOptionType.CITY;
-        if(country != null && !country.isEmpty()) return FilterOptionType.COUNTRY;
-        return FilterOptionType.ALL;
     }
 
     private MapResponse convertToResponse(Place place) {
